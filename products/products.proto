@@ -1,0 +1,18 @@
+syntax = "proto3";
+package main;
+
+service Products{
+    rpc GetProducts(ProductRequest) returns (stream Product) {}
+}
+
+
+message ProductRequest{
+
+}
+
+
+message Product{
+    string name = 1;
+    string image = 2;
+    int32 price = 3;
+}

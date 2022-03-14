@@ -1,0 +1,15 @@
+syntax = "proto3";
+package main;
+
+service Videos{
+    rpc GetVideos(VideoRequest) returns (stream Video) {}
+}
+
+
+message VideoRequest{
+    
+}
+
+message Video{
+    string url = 1;
+}

@@ -1,0 +1,4 @@
+products_*.py
+videos_*.py
+*.db
+__pycache__
