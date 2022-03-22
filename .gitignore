@@ -1,4 +1,7 @@
-products_*.py
-videos_*.py
 *.db
 __pycache__
+helm-*
+*.tfvars
+*.tfstate*
+.terraform
+grpc-cluster-kubeconfig.yaml

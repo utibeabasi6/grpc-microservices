@@ -1,0 +1,11 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: microsvc-config
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-5"
+  namespace: default
+data:
+  PRODUCTS_ADDR: {{.Values.config.PRODUCTS_ADDR}}
+  VIDEOS_ADDR: {{.Values.config.VIDEOS_ADDR}}

@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{.Values.db.name}}
+  labels:
+    {{- toYaml .Values.db.labels | nindent 4}}
+spec:
+  selector:
+    matchLabels:
+      {{- toYaml .Values.db.labels | nindent 6}}
+  serviceName: {{.Values.db.service.name}}
+  replicas: {{.Values.replicaCount}}
+  template:
+    metadata:
+      labels:
+        {{- toYaml .Values.db.labels | nindent 8}}
+    spec:
+      containers:
+        {{- with .Values.db}}
+        {{range .containers}}
+        - name: {{.name}}
+          image: {{.image}}
+          imagePullPolicy: {{.pullPolicy}}
+          ports:
+          {{- range .ports}}
+            - containerPort: {{.containerPort}}
+              name: {{.name}}
+          {{end}}
+          volumeMounts:
+          {{range .volumes}}
+              - name: {{.name}}
+                mountPath: {{.mountPath}}
+                subPath: {{.subPath}}
+          {{end}}
+          env:
+          {{toYaml .env | nindent 14}}
+          {{end}} 
+          {{end}} 
+  volumeClaimTemplates:
+  {{range .Values.db.volumeTemplates}}
+    - metadata:
+        name: {{.name}}
+      spec:
+        accessModes: {{.accessModes}}
+        resources:
+          requests:
+            storage: {{.resources.requests.storage}}
+  {{end}}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.db.service.name}}
+  labels:
+  {{- toYaml .Values.db.labels | nindent 4}}
+spec:
+  type: {{.Values.db.service.type}}
+  ports: 
+    {{- range .Values.db.service.ports}}
+    - port: {{.port}}
+      targetPort: {{.targetPort}}
+      {{- if .protocol}}
+      protocol: {{.protocol}}
+      {{end -}}
+      name: {{.name}}
+    {{- end}}
+  selector:
+  {{- toYaml .Values.db.labels | nindent 4}}

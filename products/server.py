@@ -4,11 +4,19 @@ from concurrent import futures
 import logging
 import sqlite3
 import grpc
+import os
+import psycopg2
 
 class Products(products_pb2_grpc.ProductsServicer):
     def GetProducts(self, request, context):
-        conn = sqlite3.connect("products.db")
-        rows = conn.execute("SELECT * from products").fetchall()
+        conn = psycopg2.connect(
+        host=os.environ.get("POSTGRES_URL"),
+        user="postgres",
+        password=os.environ.get("POSTGRES_PASSWORD"))
+        cursor = conn.cursor()
+        cursor.execute("SELECT * from products")
+        rows = cursor.fetchall()
+        cursor.close()
         conn.commit()
         conn.close()
         for product in rows:

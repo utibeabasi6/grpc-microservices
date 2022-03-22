@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.products.name }}
+  labels:
+    {{- toYaml .Values.products.labels | nindent 4}}
+spec:
+  replicas: {{ .Values.replicaCount}}
+  selector:
+    matchLabels:
+      {{- toYaml .Values.products.labels | nindent 6}}
+  template:
+    metadata:
+      labels:
+        {{- toYaml .Values.products.labels | nindent 8}}
+    spec:
+      containers:
+        {{- with .Values.products -}}
+        {{range .containers}}
+          - name: {{ .name }}
+            image: {{.image }}
+            imagePullPolicy: {{.pullPolicy}}
+            ports:
+              {{- range .ports}}
+              - name: {{.name}}
+                containerPort: {{.containerPort}}
+                {{if .protocol}}
+                protocol: {{.protocol}}
+                {{end}}
+              {{end}}
+            {{if .livenessProbe}}
+            livenessProbe:
+              httpGet:
+                path: {{.livenessProbe.path}}
+                port: {{.livenessProbe.port}}
+            {{end}}
+            {{if .readinessProbe}}
+            readinessProbe:
+              httpGet:
+                path: {{.readinessProbe.path}}
+                port: {{.readinessProbe.port}}
+            {{end}}
+            {{- if .resources -}}
+            resources:
+              {{- toYaml .resources | nindent 14 }}
+            {{- end -}}
+            env:
+            {{- toYaml .env | nindent 14 -}}
+        {{end}}
+        {{end}}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.products.service.name}}
+  labels:
+  {{- toYaml .Values.products.labels | nindent 4}}
+spec:
+  type: {{.Values.products.service.type}}
+  ports: 
+    {{- range .Values.products.service.ports}}
+    - port: {{.port}}
+      targetPort: {{.targetPort}}
+      {{- if .protocol}}
+      protocol: {{.protocol}}
+      {{end -}}
+      name: {{.name}}
+    {{- end}}
+  selector:
+  {{- toYaml .Values.products.labels | nindent 4}}

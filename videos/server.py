@@ -2,13 +2,20 @@ import videos_pb2
 import videos_pb2_grpc
 from concurrent import futures
 import logging
-import sqlite3
 import grpc
+import psycopg2
+import os
 
 class Videos(videos_pb2_grpc.VideosServicer):
     def GetVideos(self, request, context):
-        conn = sqlite3.connect("videos.db")
-        rows = conn.execute("SELECT * from videos").fetchall()
+        conn = psycopg2.connect(
+        host=os.environ.get("POSTGRES_URL"),
+        user="postgres",
+        password=os.environ.get("POSTGRES_PASSWORD"))
+        cursor = conn.cursor()
+        cursor.execute("SELECT * from videos")
+        rows = cursor.fetchall()
+        cursor.close()
         conn.commit()
         conn.close()
         for video in rows:

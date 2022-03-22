@@ -1,0 +1,26 @@
+version: '3.9'
+services:
+  db:
+    image: utibeabasi6/grpc-db
+    environment:
+      - POSTGRES_PASSWORD=password
+  
+  products:
+    image: utibeabasi6/grpc-products
+    environment:
+      - POSTGRES_URL=db
+      - POSTGRES_PASSWORD=password
+  
+  videos:
+    image: utibeabasi6/grpc-videos
+    environment:
+      - POSTGRES_URL=db
+      - POSTGRES_PASSWORD=password
+
+  app:
+    image: utibeabasi6/grpc-app
+    ports:
+      - 5000:5000
+    environment:
+      - VIDEOS_ADDR=videos:50052
+      - PRODUCTS_ADDR=products:50051
